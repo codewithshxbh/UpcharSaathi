@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication - matches your existing MySQL table
+model users {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(255)
+  email      String   @db.VarChar(255)
+  password   String   @db.VarChar(255)
+  created_at DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.DateTime()
+}
+
+model Medicine {
+  id                  String     @id @default(cuid())
+  name                String
+  genericName         String?
+  manufacturer        String
+  description         String?    @db.Text
+  usageInstructions   String?    @db.Text
+  dosage              String?
+  price               Float
+  discountPrice       Float?
+  stock               Int        @default(0)
+  image               String?
+  requiresPrescription Boolean    @default(false)
+  categoryId          String
+  category            MedicineCategory @relation(fields: [categoryId], references: [id])
+  cartItems           CartItem[]
+  orderItems          OrderItem[]
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+}
+
+model MedicineCategory {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?    @db.Text
+  medicines   Medicine[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id         String   @id @default(cuid())
+  quantity   Int
+  cartId     String
+  cart       Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Order {
+  id               String     @id @default(cuid())
+  userId           String
+  items            OrderItem[]
+  totalAmount      Float
+  address          String     @db.Text
+  phone            String
+  email            String?
+  status           String     @default("pending") // pending, processing, shipped, delivered, cancelled
+  paymentId        String?
+  prescriptionUrl  String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  quantity   Int
+  price      Float
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
