@@ -57,7 +57,12 @@ export default function DoctorRecommendation() {
     
     fetchSpecializations();
   }, []);
-  
+
+  // Fetch doctor recommendations when the component mounts
+  useEffect(() => {
+    handleRecommendationSearch();
+  }, []);
+
   // Function to handle recommendation search
   const handleRecommendationSearch = async () => {
     // Validation based on search method
