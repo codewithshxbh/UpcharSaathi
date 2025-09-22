@@ -6,8 +6,8 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-doctor_df=pd.read_csv("docinfo.csv")
-specialization_df=pd.read_csv("dataset.csv")
+doctor_df=pd.read_csv("recommendation system/docinfo.csv")
+specialization_df=pd.read_csv("recommendation system/dataset.csv")
 
 @app.route('/doctorFinder',methods=['POST'])
 def recommend_doc():
